@@ -35,15 +35,16 @@ With Google Calendar integration and daily reflections, Focusly helps you stay o
 ## 📦 Installation
 
 ### 1. Clone the repo
-  bash : 
+  ```bash
   git clone https://github.com/riya19verma/Focusly.git
   cd Focusly 
-
-## 2. Install dependencies
-   bash :
+```
+### 2. Install dependencies
+```bash
    pip install kivy google-api-python-client openai
-
-## 3. Run the app
-  bash:
+```
+### 3. Run the app
+```bash
   python main.py
+```
 
