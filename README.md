@@ -1,6 +1,7 @@
 # 🌟 Focusly
-
 **An AI-powered productivity and journaling desktop app built with Python & Kivy**
+🚧 **Currently in Development**  
+_This project is a work-in-progress. Core features are being built and refined._
 
 ---
 
