@@ -1,0 +1,173 @@
+<RootWidget>:
+    FloatLayout:
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: root.bg_source
+        
+        Label:
+            text: root.current_date
+            font_size: 48
+            font_name: "BRITANIC.TTF"
+            size_hint: None, None
+            size: 500,100
+            pos_hint: {"top": 1.0, "center_x": 0.5}
+            padding: 10, 10
+            text_size: self.size  # <-- Required for alignment to work
+            halign: 'left'
+            valign: 'middle'  # optional, but keeps vertical centering
+            color: 1, 1, 1, 1 
+            canvas.before:
+                Color :
+                    rgba: 0, 0, 0, 0.7  # Black with 90% opacity
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        
+        BoxLayout:
+            orientation : 'vertical'
+            spacing: 5
+            padding: 5
+            pos_hint: {"top": 1.0, "center_x": 0.16}
+            size_hint: None, None
+            size: 430, 800
+
+            canvas.before:
+                Color :
+                    rgba: 0, 0, 0, 0.5  # Black with 90% opacity
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+        Button:
+            text: "Dear Diary"
+            size_hint: None, None
+            size: 200, 50
+            pos_hint: {"center_y": 0.9, "x": 0}
+            on_release: root.toggle_plans()
+        
+        TextInput:
+            id: Diary
+            hint_text: ""
+            multiline: True
+            font_size: 28
+            font_name: "HARLOWSI.TTF"
+            size_hint: None, None
+            foreground_color: 0,0,0,1
+            background_normal: ''
+            background_active: ''
+            pos_hint: {'center_x': 0.65, 'center_y': 0.45}    
+            size: 800 if root.show_plans else 0, 500 if root.show_plans else 0 # Adjust height to fit all rows
+            opacity: 1 if root.show_plans else 0
+            disabled: not root.show_plans  # Prevent interaction when hidden
+
+            canvas.before:
+                Color:
+                    rgba: 0.6, 0.4, 0.7, 0.5
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+        Button:
+            text: "Save"
+            size_hint: None, None
+            pos_hint: {'center_x': 0.65, 'center_y': 0.05}    
+            size: 100 if root.show_plans else 0, 50 if root.show_plans else 0 # Adjust height to fit all rows
+            opacity: 1 if root.show_plans else 0
+            disabled: not root.show_plans  # Prevent interaction when hidden
+            on_release: root.save_diary()
+        
+        Button:
+            text: "Update Calendar"
+            size_hint: None, None
+            size: 200, 50
+            pos_hint: {"center_y": 0.8, "x": 0}
+            on_release: root.toggle_images()
+        
+        Button:
+            text: "Review Productivity"
+            size_hint: None, None
+            size: 200, 50
+            pos_hint: {"center_y": 0.7, "x": 0}
+            on_release: root.toggle_images()
+        
+        Button:
+            text: "Set New Goals"
+            size_hint: None, None
+            size: 200, 50
+            pos_hint: {"center_y": 0.6, "x": 0}
+            on_release: root.toggle_images()
+
+        BoxLayout:
+            orientation: 'vertical'
+            spacing: 5
+            padding: 5
+            pos_hint: {"top": 1.0, "center_x": 0.16}
+            size_hint: None, None
+            size: 440 if root.show_images else 0, 350 if root.show_images else 0 # Adjust height to fit all rows
+            opacity: 1 if root.show_images else 0
+            disabled: not root.show_images  # Prevent interaction when hidden
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                spacing: 10
+                padding: 10
+                height: 100
+
+                Button:
+                    background_normal: "bg1.jpeg"
+                    size_hint: None, None
+                    size: 200, 100
+                    on_release: root.change_background('bg1.jpeg')
+
+                Button:
+                    background_normal: "bg3.jpg"
+                    size_hint: None, None
+                    size: 200, 100
+                    on_release: root.change_background('bg3.jpg')
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                spacing: 10
+                padding: 10
+                height: 100
+
+                Button:
+                    background_normal: "bg4.jpg"
+                    size_hint: None, None
+                    size: 200, 100
+                    on_release: root.change_background('bg4.jpg')
+
+                Button:
+                    background_normal: "bg5.jpg"
+                    size_hint: None, None
+                    size: 200, 100
+                    on_release: root.change_background('bg5.jpg')
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                spacing: 10
+                padding: 10
+                height: 100
+
+                Button:
+                    background_normal: "bg6.jpg"
+                    size_hint: None, None
+                    size: 200, 100
+                    on_release: root.change_background('bg6.jpg')
+                Button:
+                    background_normal: "bg1.jpg"
+                    size_hint: None, None
+                    size: 200, 100
+                    on_release: root.change_background('bg1.jpg')
+        # Toggle Button (left-center)
+        Button:
+            text: "Canvas"
+            size_hint: None, None
+            size: 200, 50
+            pos_hint: {"center_y": 0.5, "x": 0}
+            on_release: root.toggle_images()

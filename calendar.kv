@@ -1,0 +1,24 @@
+<RootWidget>:
+    FloatLayout:
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            orientation : 'vertical'
+            spacing: 5
+            padding: 5
+            pos_hint: {"top": 1.0, "center_x": 0.16}
+            size_hint: None, None
+            size: 430, 800
+
+            canvas.before:
+                Color :
+                    rgba: 0, 0, 0, 0.5  # Black with 90% opacity
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Label:
+            text: root.selected_date
+            font_size: 48
+            pos_hint: {"top": 1.0, "center_x": 0.16}
