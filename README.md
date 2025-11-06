@@ -17,7 +17,7 @@ With Google Calendar integration and daily reflections, Focusly helps you stay o
 
 - **Python 3**
 - **Kivy** – GUI framework
-- **GEMINI** – for task suggestions 
+- **ChatBot** – for task suggestions 
 - **Google Calendar API** – for calendar sync 
 
 ---
