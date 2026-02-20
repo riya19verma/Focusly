@@ -1,5 +1,6 @@
 ﻿# Focusly 🚀
 (Work in Progress)
+---
 Focusly is a **smart productivity and goal‑tracking web application** designed to help users plan goals, break them into actionable tasks, track progress over time, stay consistent with reminders, and reflect through a personal diary — all in one place.
 
 The app combines **structured task management**, **progress analytics**, **journaling**, and a **goal‑assisting chatbot** to help users build habits and improve productivity sustainably.
@@ -260,4 +261,5 @@ It’s a system to:
 * act consistently
 * reflect honestly
 * and grow sustainably
+
 
