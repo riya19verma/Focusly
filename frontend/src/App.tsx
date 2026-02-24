@@ -16,10 +16,10 @@ function Greetings() {
 
   if (currentHour >= 5 && currentHour < 12) {
     return "Good Morning";
-  } else if (currentHour >= 12 && currentHour < 16.5) {
-    // 4:30 PM is 16.5 hours
+  } else if (currentHour >= 12 && currentHour < 17) {
+    // 5:00 PM is 17 hours
     return "Good Afternoon";
-  } else if (currentHour >= 16.5 && currentHour < 21) {
+  } else if (currentHour >= 17 && currentHour < 21) {
     // 9:00 PM is 21 hours
     return "Good Evening";
   } else {
@@ -50,22 +50,22 @@ function App() {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/">Dear Diary</Link>
+            <Link to="/Diary">Dear Diary</Link>
           </li>
           <li>
-            <Link to="/">Track Progress</Link>
+            <Link to="/TrackProgress">Track Progress</Link>
           </li>
           <li>
-            <Route path="/api/CreateNew">Create New Goals</Route>
+            <Link to="/CreateNew">Create New Goals</Link>
           </li>
           <li>
-            <Link to="/">Productivity</Link>
+            <Link to="/Productivity">Productivity</Link>
           </li>
           <li>
-            <Link to="/">Reminders</Link>
+            <Link to="/Reminders">Reminders</Link>
           </li>
           <li>
-            <Link to="/">Calendar</Link>
+            <Link to="/Calendar">Calendar</Link>
           </li>
         </ul>
       </div>

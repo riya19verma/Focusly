@@ -1,15 +1,31 @@
 import express from 'express';
+import newGoalsRoute from "./routes/newGoals.route.js";
+import {loginRouter, SignupRouter, logoutRouter} from "./routes/user.route.js"; 
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.sendFile('index.html', { root: '.' });
-});
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}));
 
-app.get('/api/CreateNew', (req, res) => {
-    const mssg = 'Create New';
-    res.sendFile('../frontend/src/pages/CreateNew/index.html', { root: '.' });
-});
+app.use(express.json({ limit: '16kb'}));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+app.use(cookieParser());
+
+
+app.use("/api/CreateNew", newGoalsRoute);
+//https://localhost:3000/api/CreateNew/newGoals
+
+
+app.use("/api/User", SignupRouter);
+app.use("/api/User", loginRouter);
+app.use("/api/User", logoutRouter);
+//https://localhost:3000/api/User/login
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
