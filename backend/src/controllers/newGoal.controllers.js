@@ -16,9 +16,36 @@ async function insertTaskHierarchy(tid, pid = null, due_date, time_allotted_in_h
 
     if (task.sub_goals && task.sub_goals.length > 0) {
         for (const sub of task.sub_goals) {
-            await createNew(PID, UID);
+            await createNew(pid, UID);
         }
     }
+}
+
+export function getNextRecurDate(startDate, recur_rate, recur_unit) {
+  const date = new Date(startDate);
+
+  switch (recur_unit) {
+    case "day":
+      date.setDate(date.getDate() + recur_rate);
+      break;
+
+    case "week":
+      date.setDate(date.getDate() + (7 * recur_rate));
+      break;
+
+    case "month":
+      date.setMonth(date.getMonth() + recur_rate);
+      break;
+
+    case "year":
+      date.setFullYear(date.getFullYear() + recur_rate);
+      break;
+
+    default:
+      throw new Error("Invalid recurrence unit");
+  }
+
+  return date;
 }
 
 const createNew = asyncHandler(async (req, res) => {
@@ -41,16 +68,9 @@ const createNew = asyncHandler(async (req, res) => {
     // return success response
 
     const UID = 1; //get this from the auth middleware after implementing authentication
-    const {description, due_date, recurring, time_alloted} = req.body;
+    const {description, due_date, recurring, time_alloted, start_date, recur_rate,recur_unit} = req.body;
     if(!description || !due_date || !time_alloted) {
         throw new ApiError(400, "Description, due date and time alloted are required fields");
-    }
-    if(recurring){
-        //recur rate in days
-        const {start_date, recur_rate} = req.body;
-        if(!start_date || !recur_rate) {
-            throw new ApiError(400, "Start date and recur rate are required for recurring tasks");
-        }
     }
 
     const currentDate = new Date();
@@ -75,21 +95,20 @@ const createNew = asyncHandler(async (req, res) => {
         }
 
         const tid = newUser.rows[0].tid;
-
+        let PID = null
         if(recurring){
             const startDateObj = new Date(start_date);
-            const next_recur_date = new Date(startDateObj);
-            next_recur_date.setDate(startDateObj.getDate() + recur_rate);
+            const next_recur_date = getNextRecurDate(start_date, recur_rate, recur_unit)
             //recurring task table entry
             const insertQuery = 
             `INSERT INTO dependent 
-            (tid, pid, start_date, next_recur_date, recur_rate, end_date, completion_rate, miss_rate,time_alloted_in_hrs) 
+            (tid, pid, start_date, next_recur_date, recur_unit, recur_rate, end_date, completion_rate, miss_rate,time_alloted_in_hrs) 
             VALUES 
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
             returning TID`;
             const newUser = await client.query(
                 insertQuery, 
-                [tid, PID, start_date, next_recur_date, recur_rate, due_date, 0, 0, time_alloted]
+                [tid, PID, startDateObj, next_recur_date,recur_unit, recur_rate, due_date, 0, 0, time_alloted]
             );
             if(newUser.rows.length === 0) {
                 throw new ApiError(500, "task could not be created");

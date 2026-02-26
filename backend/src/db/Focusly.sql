@@ -18,6 +18,10 @@ create table recurring(
 	time_alloted_in_hrs int,
 	Remarks varchar(500)
 );
+ALTER TABLE recurring
+ADD COLUMN recur_unit int;
+ALTER TABLE recurring
+ALTER COLUMN recur_unit TYPE varchar(6);
 
 create table independent(
 	TID int primary key,
@@ -28,7 +32,7 @@ create table independent(
 	time_alloted_in_hrs int,
 	Remarks varchar(500)
 );
-
+drop table independent;
 create table dependent(
 	TID int primary key,
 	PID int,
@@ -43,10 +47,15 @@ create table dependent(
 
 create table users(
 	UID int primary key GENERATED ALWAYS AS IDENTITY,
+	uname varchar(50),
 	username varchar(50) not null,
 	pass varchar(8) not null,
-	userSettings varchar(10)
+	userSettings varchar(10),
+	refreshToken varchar(64)
 );
+select* from users;
+ALTER TABLE users
+ALTER COLUMN refreshToken TYPE TEXT;
 
 create table dependency(
 	TID int GENERATED ALWAYS AS IDENTITY,

@@ -1,16 +1,13 @@
 import express from "express";
-import {registerUser, loginUser, logoutUser} from "../controllers/login.controllers.js";
-import {verifyToken} from "../middlewares/auth.middleware.js";
+import {registerUser, loginUser, logoutUser, refreshAcesssToken} from "../controllers/login.controllers.js";
+import {verifyToken} from "../middlewares/auth.middlewares.js";
 const router = express.Router();
 
-const srouter = router.route("/signup").post(registerUser); 
-const lrouter = router.route("/login").post(loginUser);
-const logoutRouter = router.route("/logout").post(
+router.route("/signup").post(registerUser); 
+router.route("/login").post(loginUser);
+router.route("/logout").post(
     verifyToken,
     logoutUser
 );
-export default {
-    lrouter,
-    srouter,
-    logoutRouter
-}
+router.route("/refreshToken").post(refreshAcesssToken)
+export {router};

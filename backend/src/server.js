@@ -1,6 +1,6 @@
 import express from 'express';
 import newGoalsRoute from "./routes/newGoals.route.js";
-import {loginRouter, SignupRouter, logoutRouter} from "./routes/user.route.js"; 
+import {router} from "./routes/user.route.js"; 
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
@@ -22,9 +22,7 @@ app.use("/api/CreateNew", newGoalsRoute);
 //https://localhost:3000/api/CreateNew/newGoals
 
 
-app.use("/api/User", SignupRouter);
-app.use("/api/User", loginRouter);
-app.use("/api/User", logoutRouter);
+app.use("/api/User", router);
 //https://localhost:3000/api/User/login
 
 const PORT = process.env.PORT || 3000;

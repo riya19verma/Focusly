@@ -1,4 +1,4 @@
-import { callAI } from "../utils/aiService.js";
+import { callAI } from "./ai.services.js";
 
 const classifyTask = async (description) => {
 

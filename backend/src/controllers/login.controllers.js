@@ -23,7 +23,7 @@ const GenerateAccessAndRefreshToken = async(username) => {
             UPDATE Users
             SET refreshToken = $1
             WHERE UID = $2;
-        `
+            `
         await client.query(query, [refreshToken, userID]);
         await client.query("COMMIT");
         return {accessToken, refreshToken};
@@ -62,7 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
         password.search(/[A-Z]/) < 0 || 
         password.search(/[a-z]/) < 0 ||
         password.search(/[0-9]/) < 0 ||
-        password.search(/[@$!%*?&]/) < 0
+        password.search(/[@$!%*?&=_-]/) < 0
     ) {
         throw new ApiError(400, "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character");
     }
@@ -104,11 +104,12 @@ const loginUser = asyncHandler(async (req, res) => {
     // password check
     //access and refresh token generation
     // send cookies
-
+    console.log("Enter username and password")
     const {username, password} = req.body;
     if (!username || !password) {
         throw new ApiError(400, "Username and password are required");
     }
+    console.log("Username Password recieved")
     let client;
     try{
         client = await pool.connect();
@@ -122,10 +123,8 @@ const loginUser = asyncHandler(async (req, res) => {
         if (!(await bcrypt.compare(password, result.rows[0].pass))) {
             throw new ApiError(400, "Invalid password");
         }
-
         //using JWT as a proof of identity
         const {accessToken, refreshToken} = await GenerateAccessAndRefreshToken(username);
-
         //making cookies server modifiable only and secure
         const cookieOptions = {
             httpOnly: true,
@@ -171,10 +170,78 @@ const logoutUser = asyncHandler(async (req, res) => {
     }
 });
 
+const refreshAcesssToken = asyncHandler(async (req, res) => {
+    const incoming_refresh_token = req.cookies.refreshToken || req.body.refreshToken //req.body for mobile applications
+    
+    if(!incoming_refresh_token){
+        throw new ApiError(401, "Unauthorized request")
+    }
+
+    const decodedToken = jwt.verify(
+        incoming_refresh_token,
+        process.env.REFRESH_TOKEN_SECRET
+    )
+
+    let client;
+    try{
+        client = await pool.connect()
+        const query = `
+            SELECT UID, refreshtoken
+            FROM users
+            WHERE UID = $1;
+        `
+        const result = await client.query(query,[decodedToken?.id])
+        if((result.rows) == 0){
+            throw new ApiError(401, "Invalid token")
+        }
+
+        if(result.rows[0].refreshtoken !== incoming_refresh_token){
+            throw new ApiError(401, "Refresh token expired or used")
+        }
+
+        const options = {
+            httpOnly : true,
+            secure : true
+        }
+
+        const {accessToken, new_refreshToken} = await GenerateAccessAndRefreshToken(result.rows[0].uid)
+
+        return res
+        .status(200)
+        .cookie("accessToken",accessToken,options)
+        .cookie("refreshToken", new_refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    accessToken,
+                    refreshToken: new_refreshToken,
+                },
+                "Access token refreshed successfully"
+            )
+        )
+    }
+    catch(error){
+        throw new ApiError(401, error.message || "Invalid Refresh Token")
+    }
+    finally{
+        if(client){
+            client.release()
+        }
+    }
+})
+
+const getCurrentUser = asyncHandler(async(req,res)=>{
+    return res.status(200)
+    .json(200, req.user, "Current user fetched successfully")
+})
+
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    refreshAcesssToken,
+    getCurrentUser
 };
 
 

@@ -2,16 +2,16 @@ import jwt from "jsonwebtoken";
 import {ApiError} from "../utils/ApiError.js";
 import pool from "../db/db.js";
 import dotenv from "dotenv";
-import { ApiResponse } from "../utils/ApiResponse";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 dotenv.config();
 const verifyToken = asyncHandler(async (req, res, next) => {
   const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
   if(!token) {
-    throw new ApiError(401, "Unauthorized Request");
+    throw ApiError(401, "Unauthorized Request");
   }
+  let client;
   try {
-    let client;
     client = await pool.connect();
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const result = await client.query(
