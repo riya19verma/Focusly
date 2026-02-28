@@ -2,6 +2,9 @@ import { callAI } from "./ai.services.js";
 
 const classifyTask = async (description) => {
 
+  let category = "General";
+  let effort_level = "Medium";
+  let energy_type = "Neutral";
   const prompt = `
 You are a task classification engine.
 
@@ -31,15 +34,23 @@ Format:
 Task:
 "${description}"
 `;
+try{
+    const raw = await callAI(prompt);
 
-  const raw = await callAI(prompt);
+    // Clean possible markdown formatting
+    const cleaned = raw.replace(/```json|```/g, "").trim();
 
-  // Clean possible markdown formatting
-  const cleaned = raw.replace(/```json|```/g, "").trim();
-
-  const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(cleaned);
+}catch(error) {
+    console.error("AI quota exceeded. Using fallback classification.");
+    const parsed = {
+        category: "General",
+        effort_level: "Medium",
+        energy_type: "Neutral"
+    };
 
   return parsed;   // return full object
+}
 };
 
 export { classifyTask };

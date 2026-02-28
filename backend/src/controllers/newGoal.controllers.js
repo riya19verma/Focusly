@@ -4,29 +4,13 @@ import {ApiError} from '../utils/ApiError.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import { classifyTask } from '../services/taskClassify.services.js';
 
-async function insertTaskHierarchy(tid, pid = null, due_date, time_allotted_in_hrs) {
-    const result = await client.query(
-        `INSERT INTO dependent (tid, pid, reschedule_count, due_date, completion_rate, time_allotted_in_hrs)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING tid`,
-        [tid, pid, 0, due_date, 0, time_allotted_in_hrs]
-    );
-
-    const newTid = result.rows[0].tid;
-
-    if (task.sub_goals && task.sub_goals.length > 0) {
-        for (const sub of task.sub_goals) {
-            await createNew(pid, UID);
-        }
-    }
-}
-
-export function getNextRecurDate(startDate, recur_rate, recur_unit) {
+async function getNextRecurDate(startDate, recur_rate, recur_unit) {
   const date = new Date(startDate);
-
+  console.log("Start Date:", date);
   switch (recur_unit) {
     case "day":
       date.setDate(date.getDate() + recur_rate);
+      console.log("Next Recur Date (Day):", date);
       break;
 
     case "week":
@@ -48,7 +32,7 @@ export function getNextRecurDate(startDate, recur_rate, recur_unit) {
   return date;
 }
 
-const createNew = asyncHandler(async (req, res) => {
+async function createNewGoalsFunc(PID,tasks,UID){
     // Collect data from user
     // Check if user has entered all required fields
     // Check whether the set due date >= current date
@@ -67,60 +51,87 @@ const createNew = asyncHandler(async (req, res) => {
     // update sync changes table
     // return success response
 
-    const UID = 1; //get this from the auth middleware after implementing authentication
-    const {description, due_date, recurring, time_alloted, start_date, recur_rate,recur_unit} = req.body;
-    if(!description || !due_date || !time_alloted) {
-        throw new ApiError(400, "Description, due date and time alloted are required fields");
-    }
-
     const currentDate = new Date();
+    console.log("1")
+    console.log("Current User ID:", UID);
+    const {
+        description = null, 
+        due_date = currentDate, 
+        is_recurring = false, 
+        time_alloted = null, 
+        time_unit = null, 
+        start_date = currentDate, 
+        r_rate=null,
+        recur_unit=null,
+        sub_goals=null
+    } = tasks;
+    if(!description || !due_date || !time_alloted || !time_unit) {
+        throw new ApiError(400, "Description, due date, time alloted and time unit are required fields");
+    }
+    if(!start_date) start_date = currentDate;
+    if(!due_date) due_date = currentDate;
+    console.log("Received task data:", tasks);
+    const recurring = is_recurring ==="true"? true : false;
+    const recur_rate = recurring ? parseInt(r_rate) : null;
     const dueDate = new Date(due_date);
     if(dueDate < currentDate) {
         throw new ApiError(400, "Due date must be greater than or equal to current date");
     }
 
-    const taskClassification = await classifyTask(description);
-
-    const {sub_goals} = req.body;
+    const {category, effort_level, energy_type} = await classifyTask(description);
+    console.log(category, effort_level, energy_type);
 
     let client;
-
+    let tid;
     try{
         client = await pool.connect();
         await client.query("BEGIN");
         const insertQuery = "INSERT INTO tasks (def, cat_type,effort_level, energy_type , UID) VALUES ($1, $2, $3, $4, $5) returning TID";
-        const newUser = await client.query(insertQuery, [description, taskClassification.category, taskClassification.effort_level, taskClassification.energy_type, UID]);
-        if(newUser.rows.length === 0) {
+        const task = await client.query(insertQuery, [description, category, effort_level, energy_type, UID]);
+        if(task.rows.length === 0) {
             throw new ApiError(500, "task could not be created");
         }
-
-        const tid = newUser.rows[0].tid;
-        let PID = null
+        tid = task.rows[0].tid;
         if(recurring){
             const startDateObj = new Date(start_date);
             const next_recur_date = getNextRecurDate(start_date, recur_rate, recur_unit)
-            //recurring task table entry
+            // //recurring task table entry
             const insertQuery = 
-            `INSERT INTO dependent 
-            (tid, pid, start_date, next_recur_date, recur_unit, recur_rate, end_date, completion_rate, miss_rate,time_alloted_in_hrs) 
+            `INSERT INTO recurring 
+            (tid, pid, start_date, next_recur_date, recur_unit, recur_rate, end_date, completion_rate, miss_rate,time_alloted, time_unit) 
             VALUES 
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
             returning TID`;
-            const newUser = await client.query(
+            const response = await client.query(
                 insertQuery, 
-                [tid, PID, startDateObj, next_recur_date,recur_unit, recur_rate, due_date, 0, 0, time_alloted]
+                [tid, PID, startDateObj, next_recur_date,recur_unit, recur_rate, due_date, 0, 0, time_alloted, time_unit]
             );
-            if(newUser.rows.length === 0) {
+            if(response.rows.length === 0) {
                 throw new ApiError(500, "task could not be created");
             }
-            res.status(201).json(
-                new ApiResponse(201, newUser.rows[0], "Task created successfully")
+            console.log("Recurring task created with TID:", response.rows[0].tid);
+        }
+        else {
+            const insertQuery =` 
+               INSERT INTO dependent (tid, pid, reschedule_count, due_date, completion_rate, time_allotted, time_unit)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING tid`;
+            const response = await client.query(
+                insertQuery, 
+                [tid, PID, 0, due_date, 0, time_alloted, time_unit]
             );
+            if(response.rows.length === 0) {
+                throw new ApiError(500, "task could not be created");
+            }
+            if(sub_goals && sub_goals.length > 0) {
+                PID = tid;
+                for (let i=0; i<sub_goals.length; i++) {
+                    createNewGoalsFunc(PID, sub_goals[i],UID);
+                }
+            }   
+            console.log("Independent task created with TID:", response.rows[0].tid);    
         }
-        else{
-            await insertTaskHierarchy(tid, client, req.body, UID);
-        }
-        const {prerequisites} = req.body;
+        const {prerequisites} = tasks;
         if(prerequisites && prerequisites.length > 0) {
             for(let i=0; i<prerequisites.length; i++) {
                 const insertQuery = "INSERT INTO dependency (tid, prerequisite_tid) VALUES ($1, $2)";
@@ -145,18 +156,23 @@ const createNew = asyncHandler(async (req, res) => {
         );
 
         await client.query("COMMIT");
-
-        // -------- FINAL RESPONSE --------
-        res.status(201).json(
-            new ApiResponse(201, { tid }, "Task created successfully")
-        );
-
-    } catch (error) {
+        
+    } catch (error) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
         if (client) await client.query("ROLLBACK");
         throw error;
     } finally {
         if (client) client.release();
     }
+    return tid;
+}
+
+const createNew = asyncHandler(async (req, res) => {
+    const UID = req.user.uid;
+    console.log("User UID:", UID);
+    const tid = await createNewGoalsFunc(null, req.body, UID);
+    res.status(201).json(
+            new ApiResponse(201, {tid}, "Task created successfully")
+        );
 });
 
 export {createNew};

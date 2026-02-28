@@ -1,17 +1,22 @@
 create table Tasks(
 	TID int primary key GENERATED ALWAYS AS IDENTITY,
 	def varchar(100),
-	task_type varchar(20),
+	cat_type varchar(20),
+	effort_level varchar(20),
+	energy_type varchar(20),
 	UID int,
 	created_at timetz not NULL,
 	completed_dropped varchar(20)
 );
 
+select*from tasks;
 create table recurring(
 	TID int primary key,
 	PID int,
 	next_recur_date date,
+	start_date date,
 	recur_rate int not null,
+	recur_unit varchar(6),
 	end_date date,
 	completion_rate int,
 	miss_rate int,
@@ -19,20 +24,11 @@ create table recurring(
 	Remarks varchar(500)
 );
 ALTER TABLE recurring
-ADD COLUMN recur_unit int;
+RENAME COLUMN time_alloted_in_hrs to time_allotted;
 ALTER TABLE recurring
-ALTER COLUMN recur_unit TYPE varchar(6);
+ADD column time_unit varchar(6);
+select*from recurring;
 
-create table independent(
-	TID int primary key,
-	reschedule_count int,
-	due_date date,
-	Real_end_date date,
-	priority int,
-	time_alloted_in_hrs int,
-	Remarks varchar(500)
-);
-drop table independent;
 create table dependent(
 	TID int primary key,
 	PID int,
@@ -44,6 +40,11 @@ create table dependent(
 	time_alloted_in_hrs int,
 	Remarks varchar(500)
 );
+ALTER TABLE dependent
+RENAME COLUMN time_alloted_in_hrs to time_allotted;
+ALTER TABLE dependent
+ADD column time_unit varchar(6);
+select* from dependent;
 
 create table users(
 	UID int primary key GENERATED ALWAYS AS IDENTITY,
@@ -51,11 +52,10 @@ create table users(
 	username varchar(50) not null,
 	pass varchar(8) not null,
 	userSettings varchar(10),
-	refreshToken varchar(64)
+	refreshToken text
 );
+
 select* from users;
-ALTER TABLE users
-ALTER COLUMN refreshToken TYPE TEXT;
 
 create table dependency(
 	TID int GENERATED ALWAYS AS IDENTITY,
@@ -87,6 +87,8 @@ create table sync_changes(
 	created_at timetz
 );
 
+select*from sync_changes;
+
 create table checkbox(
 	CID int primary key GENERATED ALWAYS AS IDENTITY,
 	obj_type char(3),
@@ -95,12 +97,6 @@ create table checkbox(
 );
 
 SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
-
--- Link Independent tasks to Main Tasks
-ALTER TABLE independent
-ADD CONSTRAINT fk_independent_task
-FOREIGN KEY (TID) REFERENCES Tasks(TID)
-ON DELETE CASCADE;
 
 -- Link Recurring tasks to Main Tasks
 ALTER TABLE recurring
