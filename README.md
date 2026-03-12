@@ -166,7 +166,7 @@ If rejected, chatbot regenerates suggestions.
 
 ## 🗄️ Data Model Overview
 * Model:
-![Project Data Model](images\DataModel.drawio.png)
+![Project Data Model](images/DataModel.drawio.png)
 
 ---
 
