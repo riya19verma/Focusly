@@ -54,6 +54,10 @@ create table users(
 	userSettings varchar(10),
 	refreshToken text
 );
+ALTER TABLE users
+ADD COLUMN work_capacity_in_hrs int;
+ALTER TABLE users
+ADD COLUMN days_available_per_week ENUM;
 
 select* from users;
 
@@ -96,6 +100,27 @@ create table checkbox(
 	stamp timestamptz
 );
 
+CREATE TABLE user_qualities (
+    uid INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    effort_level TEXT NOT NULL,
+    energy_type TEXT NOT NULL,
+    consistency FLOAT,
+    procrastination FLOAT,
+    avg_time_devoted FLOAT,
+    completion_without_reschedule FLOAT,
+    meet_deadline FLOAT,
+    early_completion FLOAT,
+    PRIMARY KEY (uid, category, effort_level, energy_type)
+);
+ALTER TABLE user_qualities
+ADD COLUMN updated_at TIMESTAMPTZ DEFAULT NOW();
+
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON user_qualities
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
+
 SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
 
 -- Link Recurring tasks to Main Tasks
@@ -133,3 +158,12 @@ ALTER TABLE dependency
 ADD CONSTRAINT fk_dep_parent_task
 FOREIGN KEY (dependent_on) REFERENCES Tasks(TID)
 ON DELETE CASCADE;
+
+-- Trigger to update timestamp on updation of table
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;

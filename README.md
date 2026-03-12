@@ -202,6 +202,8 @@ If rejected, chatbot regenerates suggestions.
 
 * Postgresql
 * Designed for relational task dependencies
+* Model:
+![Project Data Model](images\DataModel.drawio.png)
 
 ---
 
