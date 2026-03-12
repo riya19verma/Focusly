@@ -164,22 +164,9 @@ If rejected, chatbot regenerates suggestions.
 
 ---
 
-## 🗄️ Data Model Overview (High Level)
-
-### Entities
-
-* **User**
-* **Dependency**
-* **Tasks**
-
-  * Independent
-  * Dependent
-  * Recurring
-* **Notes**
-* **Diary Entries**
-* **Reminders**
-* **Checboxes**
-* **Sync Logs** (for tracking changes)
+## 🗄️ Data Model Overview
+* Model:
+![Project Data Model](images\DataModel.drawio.png)
 
 ---
 
@@ -202,8 +189,7 @@ If rejected, chatbot regenerates suggestions.
 
 * Postgresql
 * Designed for relational task dependencies
-* Model:
-![Project Data Model](images\DataModel.drawio.png)
+
 
 ---
 
