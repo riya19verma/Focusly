@@ -3,121 +3,7 @@ import pool from '../db/db.js';
 import {ApiError} from '../utils/ApiError.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import { classifyTask } from '../services/taskClassify.services.js';
-import { createGoal } from '../services/goalCreationHelp.services.js';
-
-async function helpAI(UID, taskDescription, taskType, deadline) {
-    //retrive from db
-    let client;
-    client = await pool.connect();
-    const available_hours = {};
-    try {
-        await client.query("BEGIN");
-        const query = `
-            SELECT * 
-            FROM user_qualities 
-            WHERE 
-                uid = $1 and 
-                category = $2 and 
-            effort_level = $3 and 
-            energy_type = $4`;
-        const result = await client.query(
-            query, 
-            [
-                UID, 
-                taskType.category, 
-                taskType.effort_level, 
-                taskType.energy_type
-            ]
-        );
-        const query2 = `
-            SELECT work_capacity_in_hrs, days_available_per_week
-            FROM users
-            WHERE uid = $1
-        `;
-        
-        const result2 = await client.query(query2, [UID]);
-
-        // fetching schedule in case of short term goal 
-        if(dueDate - new Date() <= 30*24*60*60*1000) {
-            const curr = new Date(dueDate);
-            while(curr <= deadline){
-                const dateStr = curr.toISOString().split('T')[0];
-                const scheduleQuery1 = `
-                    SELECT TID, due_date, time_allotted, time_unit
-                    FROM dependent
-                    WHERE pid IN ( 
-                        SELECT tid 
-                        FROM tasks 
-                        WHERE uid = $1
-                    ) 
-                    AND due_date = $2
-                    AND time_unit = 'hour'
-                `;
-                const scheduleResult1 = await client.query(
-                    scheduleQuery1, 
-                    [UID, curr]
-                );
-                let total = 0;
-                for(let i=0; i<scheduleResult1.rows.length; i++) {
-                    total += scheduleResult1.rows[i].time_allotted;
-                }                   
-                available_hours[dateStr] = total;
-                curr.setDate(curr.getDate() + 1);
-            } 
-            
-            const scheduleQuery2 = `
-                SELECT TID, next_recur_date, time_alloted, time_unit, recur_unit, recur_rate, end_date
-                FROM recurring
-                WHERE pid IN (
-                    SELECT tid 
-                    FROM tasks
-                    WHERE uid = $1
-                )
-                AND end_date >= $2
-                AND recur_unit = 'day'
-            `;
-            const scheduleResult2 = await client.query(
-                scheduleQuery2, 
-                [UID, curr]
-            );
-            
-            for(let i=0; i<scheduleResult2.rows.length; i++) {
-                const row = scheduleResult2.rows[i];
-                let time_alloted = row.time_alloted;
-                let next_recur_date = new Date(row.next_recur_date);
-                const end_date = new Date(row.end_date);
-                while(next_recur_date <= end_date && next_recur_date <= deadline) {
-                    const dateStr = next_recur_date.toISOString().split('T')[0];
-                    if(available_hours[dateStr]) {
-                        available_hours[dateStr] += time_alloted;
-                    }
-                    next_recur_date.setDate(next_recur_date.getDate() + row.recur_rate);
-                }
-            } 
-            for(let date in available_hours) {
-                available_hours[date] = result2.rows[0].work_capacity_in_hrs - available_hours[date];
-            }
-        }
-        await client.query("COMMIT");
-    } catch (error) {
-        await client.query("ROLLBACK");
-        throw error;
-    } finally {
-        client.release();
-    }
-    
-    const AIresponse = await createGoal(
-        taskDescription, 
-        result2.rows[0].work_capacity_in_hrs, 
-        deadline,
-        result.rows[0],
-        available_hours,
-        result2.rows[0].days_available_per_week
-    );
-
-    return AIresponse;
-}
-
+import { parse } from 'dotenv';
 
 async function getNextRecurDate(startDate, recur_rate, recur_unit) {
   const date = new Date(startDate);
@@ -166,7 +52,7 @@ async function createNewGoalsFunc(client, PID, tasks, UID) {
     // update sync changes table
     // return success response
 
-    const currentDate = new Date();
+    const currentDate = new Date().toISOString().split('T')[0];
     console.log("1")
     console.log("Current User ID:", UID);
     const {
@@ -188,6 +74,7 @@ async function createNewGoalsFunc(client, PID, tasks, UID) {
     console.log("Received task data:", tasks);
     const recurring = is_recurring ==="true"? true : false;
     const recur_rate = recurring ? parseInt(r_rate) : null;
+    
     const dueDate = new Date(due_date);
     if(dueDate < currentDate) {
         throw new ApiError(400, "Due date must be greater than or equal to current date");
@@ -205,7 +92,7 @@ async function createNewGoalsFunc(client, PID, tasks, UID) {
     tid = task.rows[0].tid;
     if(recurring){
         const startDateObj = new Date(start_date);
-        const next_recur_date = getNextRecurDate(start_date, recur_rate, recur_unit)
+        const next_recur_date = startDateObj == currentDate ? startDateObj : getNextRecurDate(start_date, recur_rate, recur_unit);
         // //recurring task table entry
         const insertQuery = 
         `INSERT INTO recurring 
@@ -274,16 +161,109 @@ async function createNewGoalsFunc(client, PID, tasks, UID) {
     return tid;
 }
 
-const createNew = asyncHandler(async (req, res) => {
+const parseAIresponse = (client, PID, tasks, UID, AIres) => {
+    const option = AIres.term.toLowerCase();
+    const currentDate = new Date().toISOString().split('T')[0];
+    if(option === "short term") {
+        for(let i=0; i<AIres.schedule.length; i++) {
+            const tasks = {
+                description : AIres.schedule[i].description,
+                due_date : currentDate,
+                time_alloted : AIres.schedule[i].time_allocated,
+                time_unit  : AIres.schedule[i].time_unit,
+                start_date : currentDate,
+                r_rate : null,
+                recur_unit : null,
+                sub_goals : null
+            }
+            createNewGoalsFunc(client, PID, tasks, UID);
+        }
+    }
+    else if(option === "medium term") {
+        for(let i=0; i<AIres.milestones.length; i++) {   
+            const weekNo = parseInt(AIres.milestones[i].week);
+            const start_date = getNextRecurDate(currentDate, weekNo-1, "week");
+            const tasks = {
+                description : AIres.milestones[i].description,
+                start_date : start_date,
+                due_date : getNextRecurDate(start_date, 1, "week"),
+                time_alloted : 1,
+                time_unit : "week",
+                r_rate : null,
+                recur_unit : null,
+                sub_goals : null
+            }
+            createNewGoalsFunc(client, PID, tasks, UID);
+        }
+        for(let i=0; i<AIres.recurring_tasks.length; i++){  
+            const tasks = {
+                description : AIres.recurring_tasks[i].description,
+                due_date : new Date(AIres.recurring_tasks[i].due_date),
+                time_alloted : AIres.recurring_tasks[i].time_allocated,
+                time_unit : AIres.recurring_tasks[i].time_unit,
+                start_date : new Date(AIres.recurring_tasks[i].start_date),
+                r_rate : AIres.recurring_tasks[i].recur_rate,
+                recur_unit : AIres.recurring_tasks[i].recur_unit,
+                sub_goals : null
+            }
+            createNewGoalsFunc(client, PID, tasks, UID);
+        }
+    }
+    else if(option === "long term") {
+        for(let i=0; i<AIres.milestones.length; i++) {   
+            const monthNo = parseInt(AIres.milestones[i].month);
+            const start_date = getNextRecurDate(currentDate, monthNo-1, "month");
+            const tasks = {
+                description : AIres.milestones[i].description,
+                start_date : start_date,
+                due_date : getNextRecurDate(start_date, 1, "month"),
+                time_alloted : 1,
+                time_unit : "month",
+                r_rate : null,
+                recur_unit : null,
+                sub_goals : null
+            }
+            createNewGoalsFunc(client, PID, tasks, UID);
+        }
+        for(let i=0; i<AIres.recurring_tasks.length; i++){  
+            const tasks = {
+                description : AIres.recurring_tasks[i].description,
+                due_date : new Date(AIres.recurring_tasks[i].due_date),
+                time_alloted : AIres.recurring_tasks[i].time_allocated,
+                time_unit : AIres.recurring_tasks[i].time_unit,
+                start_date : new Date(AIres.recurring_tasks[i].start_date),
+                r_rate : AIres.recurring_tasks[i].recur_rate,
+                recur_unit : AIres.recurring_tasks[i].recur_unit,
+                sub_goals : null
+            }
+            createNewGoalsFunc(client, PID, tasks, UID);
+        }
+    }
+}
+
+const createNew = (help, AIres) => asyncHandler(async (req, res) => {
     const UID = req.user.uid;
     console.log("User UID:", UID);
-    const help = req.query.help === "true" ? true : false;
+    const client = await pool.connect();
     if(help) {
-        const taskType = await classifyTask(req.body.description);
-        await helpAI(UID, req.body.description, taskType, req.body.due_date);
+        const tasks = {
+            description : req.body.description, 
+            due_date : req.body.due_date, 
+            is_recurring : false, 
+            time_alloted : null, 
+            time_unit : null, 
+            start_date : req.body.start_date, 
+            r_rate:null,
+            recur_unit : null,
+            sub_goals : null
+        }
+        const tid = createNewGoalsFunc(client, null, tasks, UID)
+        parseAIresponse(client, tid, tasks, UID, AIres);
+        res.status(200).json(
+            new ApiResponse(200, {message: "Goal created successfully with AI assistance"}, "Success")
+        );
     }
 
-    const client = await pool.connect();
     try{
         await client.query("BEGIN");
         const tid = await createNewGoalsFunc(

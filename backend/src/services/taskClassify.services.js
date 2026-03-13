@@ -1,4 +1,4 @@
-import { callAI } from "./ai.services.js";
+import { callAIforClassification } from "./ai.services.js";
 
 const classifyTask = async (description) => {
 
@@ -35,7 +35,7 @@ Task:
 "${description}"
 `;
 try{
-    const raw = await callAI(prompt);
+    const raw = await callAIforClassification(prompt);
 
     // Clean possible markdown formatting
     const cleaned = raw.replace(/```json|```/g, "").trim();
