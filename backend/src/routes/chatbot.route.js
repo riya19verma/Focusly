@@ -1,15 +1,12 @@
 import express from "express";
-import {createNew} from "../controllers/newGoal.controllers.js";
+import {chatbotController} from "../controllers/chatbot.controllers.js";
 import {verifyToken} from "../middlewares/auth.middlewares.js";
 
 const router = express.Router();
 
-router.route("/newGoals").post(
-    verifyToken, 
-    createNew()
+router.route("/chat").post(
+    verifyToken,
+    chatbotController()
 ); 
 export default router;
-
-
-
 

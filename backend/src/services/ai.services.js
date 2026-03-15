@@ -5,11 +5,12 @@ const ai = new GoogleGenAI({
 });
 
 const callAIforClassification = async (prompt) => {
+  console.log("Calling AI for classification with prompt:", prompt);
   const result = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: [{ role: "user", parts: [{ text: prompt }] }],
   });
-
+  console.log("Raw AI response for classification:", result.text);
   return result.text;
 };
 

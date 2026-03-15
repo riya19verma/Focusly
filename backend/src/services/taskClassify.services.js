@@ -6,51 +6,53 @@ const classifyTask = async (description) => {
   let effort_level = "Medium";
   let energy_type = "Neutral";
   const prompt = `
-You are a task classification engine.
+    You are a task classification engine.
 
-Classify the following task into following (Choose exactly ONE value from each group below.): 
+    Classify the following task into following (Choose exactly ONE value from each group below.): 
 
-1. category based on the nature of the task:
-Deep Work, Study, Admin, Shallow, Creative, Physical, Personal.
+    1. category based on the nature of the task:
+    Deep Work, Study, Admin, Shallow, Creative, Physical, Personal.
 
-2. category based on the effort level required:
-Low, Medium, High.
+    2. category based on the effort level required:
+    Low, Medium, High.
 
-3. category based on the energy type required:
-Cognitive, Mechanical, Social.
+    3. category based on the energy type required:
+    Cognitive, Mechanical, Social.
 
-Return ONLY valid JSON.
-No explanation.
-No markdown.
-No extra text.
+    Return ONLY valid JSON.
+    No explanation.
+    No markdown.
+    No extra text.
 
-Format:
-{
-  "category": "...",
-  "effort_level": "...",
-  "energy_type": "...",
-}
+    Format:
+    {
+      "category": "...",
+      "effort_level": "...",
+      "energy_type": "...",
+    }
 
-Task:
-"${description}"
-`;
-try{
-    const raw = await callAIforClassification(prompt);
+    Task:
+    "${description}"
+  `;
+  console.log("Classification prompt:", prompt);
+  try{
+      console.log("Calling AI for classification...");
+      const raw = await callAIforClassification(prompt);
+      console.log("Raw AI response for classification:", raw);
+      // Clean possible markdown formatting
+      const cleaned = raw.replace(/```json|```/g, "").trim();
+      console.log("Cleaned AI response for classification:", cleaned);
+      const parsed = JSON.parse(cleaned);
+  }catch(error) {
+      console.error("AI quota exceeded. Using fallback classification.");
+      const parsed = {
+          category: "General",
+          effort_level: "Medium",
+          energy_type: "Neutral"
+      };
 
-    // Clean possible markdown formatting
-    const cleaned = raw.replace(/```json|```/g, "").trim();
-
-    const parsed = JSON.parse(cleaned);
-}catch(error) {
-    console.error("AI quota exceeded. Using fallback classification.");
-    const parsed = {
-        category: "General",
-        effort_level: "Medium",
-        energy_type: "Neutral"
-    };
-
-  return parsed;   // return full object
-}
+    return parsed;   // return full object
+  }
 };
 
 export { classifyTask };

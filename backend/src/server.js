@@ -1,6 +1,7 @@
 import express from 'express';
 import newGoalsRoute from "./routes/newGoals.route.js";
 import {router} from "./routes/user.route.js"; 
+import chatbotRoute from "./routes/chatbot.route.js";
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
@@ -24,6 +25,10 @@ app.use("/api/CreateNew", newGoalsRoute);
 
 app.use("/api/User", router);
 //https://localhost:3000/api/User/login
+
+app.use("/api/chatbot", chatbotRoute);
+//https://localhost:3000/api/chatbot/chat
+console.log("Server is starting...");
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

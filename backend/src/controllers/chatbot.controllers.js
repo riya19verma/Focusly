@@ -14,16 +14,16 @@ import {asyncHandler} from '../utils/asyncHandler.js';
 import pool from '../db/db.js';
 import {ApiError} from '../utils/ApiError.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
-import { createNew } from 'newGoal.controllers.js';
 import { classifyTask } from '../services/taskClassify.services.js';
-import { createGoal,updatePlan,rescheduleHelp } from '../services/goalCreationHelp.services.js';
+import { createGoal,updatePlan,rescheduleHelp } from '../services/AiPromptHelper.services.js';
 import { callAIforChatting } from '../services/ai.services.js';
 
-async function helpAI(UID, taskDescription, taskType, deadline) {
+async function helpAI(UID, taskDescription, category, effort_level, energy_type, deadline) {
     //retrive from db
     let client;
     client = await pool.connect();
     const available_hours = {};
+    let result, result2, scheduleResult1, scheduleResult2;
     try {
         await client.query("BEGIN");
         const query = `
@@ -34,13 +34,13 @@ async function helpAI(UID, taskDescription, taskType, deadline) {
                 category = $2 and 
             effort_level = $3 and 
             energy_type = $4`;
-        const result = await client.query(
+        result = await client.query(
             query, 
             [
                 UID, 
-                taskType.category, 
-                taskType.effort_level, 
-                taskType.energy_type
+                category, 
+                effort_level, 
+                energy_type
             ]
         );
         const query2 = `
@@ -49,11 +49,11 @@ async function helpAI(UID, taskDescription, taskType, deadline) {
             WHERE uid = $1
         `;
         
-        const result2 = await client.query(query2, [UID]);
+        result2 = await client.query(query2, [UID]);
 
         // fetching schedule in case of short term goal 
-        if(dueDate - new Date() <= 30*24*60*60*1000) {
-            const curr = new Date(dueDate);
+        if(deadline - new Date() <= 30*24*60*60*1000) {
+            const curr = new Date(deadline);
             while(curr <= deadline){
                 const dateStr = curr.toISOString().split('T')[0];
                 const scheduleQuery1 = `
@@ -67,7 +67,7 @@ async function helpAI(UID, taskDescription, taskType, deadline) {
                     AND due_date = $2
                     AND time_unit = 'hour'
                 `;
-                const scheduleResult1 = await client.query(
+                scheduleResult1 = await client.query(
                     scheduleQuery1, 
                     [UID, curr]
                 );
@@ -90,7 +90,7 @@ async function helpAI(UID, taskDescription, taskType, deadline) {
                 AND end_date >= $2
                 AND recur_unit = 'day'
             `;
-            const scheduleResult2 = await client.query(
+            scheduleResult2 = await client.query(
                 scheduleQuery2, 
                 [UID, curr]
             );
@@ -134,14 +134,19 @@ async function helpAI(UID, taskDescription, taskType, deadline) {
     return {context};
 }
 
-const options = req.query.options || "none";
 
 const chatbotController = (context = null) => asyncHandler(async (req, res) => {
+    console.log("Chatbot controller invoked with context:", context);
+    const options = req.body.options || "none";
     const UID = req.user.uid;
     console.log("User UID:", UID);
     if(options === "createNew") {
-        const taskType = await classifyTask(req.body.description);
-        const context = await helpAI(UID, req.body.description, taskType, req.body.due_date);
+        let description = req.body.description;
+        console.log("Task description:", description);
+        const {category,effort_level,energy_type} = await classifyTask(description);
+        console.log(category,effort_level,energy_type);
+        context = await helpAI(UID, description, category, effort_level, energy_type, req.body.due_date);
+        console.log("Context after helpAI:", context);
         const Response = await createGoal(
             context.context.def, 
             context.context.work_capacity_in_hrs,
@@ -150,8 +155,9 @@ const chatbotController = (context = null) => asyncHandler(async (req, res) => {
             context.context.available_hours,
             context.context.days_available
         );
+        let message = "";
         if(Response.res === "Message limit reached") {
-            const message = "AI message limit reached. Goal created without AI assistance.";
+            message = "AI message limit reached. Goal created without AI assistance.";
         }
         else {
             message = `Do you approve the created schedule? ${Response.parsed}`;
@@ -160,15 +166,18 @@ const chatbotController = (context = null) => asyncHandler(async (req, res) => {
             // const message = dbResponse.message;
         }
         context.term = Response.parsed.term;
-        return {message, context};
+        return res.status(200).json(
+            new ApiResponse(200, {message, context})
+        );
     }
     else if(options === "updatePlan") {
         const user_req = req.body.message;
         const createdGoal = req.body.createdGoal;
-        const context = req.body.context;
+        let message = "";
+        context = req.body.context;
         const Response = await updatePlan(UID, user_req, createdGoal,context);
         if(Response.res === "Message limit reached") {
-            const message = "AI message limit reached. Goal created without AI assistance.";
+           message = "AI message limit reached. Goal created without AI assistance.";
         }
         else {
             message = `Do you approve the created schedule? ${Response.parsed}`;
@@ -177,15 +186,18 @@ const chatbotController = (context = null) => asyncHandler(async (req, res) => {
             // const message = dbResponse.message;
         }
         context.term = Response.parsed.term;
-        return {message, context};
+        return res.status(200).json(
+            new ApiResponse(200, {message, context})
+        );
     }
     else if(options === "rescheduleHelp") {
         const user_req = req.body.message;
         const createdGoal = req.body.createdGoal;
-        const context = await helpAI(UID, req.body.description, taskType, req.body.due_date);
+        context = await helpAI(UID, req.body.description, taskType, req.body.due_date);
         const Response = await rescheduleHelp(UID, user_req, createdGoal,context);
+        let message = "";
         if(Response.res === "Message limit reached") {
-            const message = "AI message limit reached. Goal created without AI assistance.";
+            message = "AI message limit reached. Goal created without AI assistance.";
         }
         else {
             message = `Do you approve the created schedule? ${Response.parsed}`;
@@ -193,16 +205,30 @@ const chatbotController = (context = null) => asyncHandler(async (req, res) => {
             // const dbResponse = await createNew(true, Response.parsed)(req, res);
             // const message = dbResponse.message;
         }
-        context[term] = Response.parsed.term;
-        return {message, context};
+        context.termId = Response.parsed.term;
+        return res.status(200).json(
+            new ApiResponse(200, {message, context})
+        );
     }
-    else {
+    else if(options === "conversation") {
         //normal conversational message, call appropriate function in ai.services.js and return response
         const user_mssg = req.body.message;
-        const conversation = req.body.context;
-        conversation.push({role : "user", parts : [{text : user_mssg}]});
+        let conversation = [];
+        try {
+            conversation = JSON.parse(req.body.context || "[]");
+        } catch(e) {
+            conversation = []; // fallback if malformed
+        }
+
         const Response = await callAIforChatting(user_mssg, conversation);
-        const message = Response;
-        return {message, conversation};
+        conversation.push({ role: "user", parts: [{ text: user_mssg }] });
+        conversation.push({ role: "model", parts: [{ text: Response }] }); 
+        console.log("Conversation history:", conversation);
+        let message = Response;
+        return res.status(200).json(
+            new ApiResponse(200, {message, conversation})
+        );
     }
 });
+
+export { chatbotController };
