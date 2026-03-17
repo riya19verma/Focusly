@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import Diary from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import "./index.css";
-import CreateNew from "./App.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <CreateNew />
+      <Diary />
     </BrowserRouter>
   </React.StrictMode>
 );

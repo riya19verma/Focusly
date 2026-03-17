@@ -1,7 +1,6 @@
 #root {
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  min-height: 100vh;
   text-align: left;
 }
 /* src/components/Sidebar.css */
@@ -39,7 +38,69 @@
   background-color: #575757;
 }
 
-.streak h2 {
-  width: 100vh;
-  text-align: left;
+.add-root-button-container {
+  margin-top: 20px;
+  width : 70%;
+}
+
+.Level1{
+  width: 100%;
+  padding: 10px;
+  padding-bottom: 0px;
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.Level2{
+  width: 100%;
+  margin-top: 20px;
+  margin-left: 40px;
+  font-size: 20px;
+  padding-bottom: 0px;
+}
+
+.Level3{
+  width: 100%;
+  margin-top: 20px;
+  margin-left: 40px;
+  font-size: 16px;
+  padding-bottom: 0px;
+}
+
+.Level4{
+  width: 100%;
+  margin-top: 20px;
+  margin-left: 40px;
+  font-size: 16px;
+  padding-bottom: 0px;
+}
+
+input {
+  width: 80%;
+  margin-left: 40px;
+  border : none;
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  color : white;
+  border-radius: 4px;
+  font-size: 16px;
+  outline: none;
+}
+
+input:focus{
+  border-bottom: 2px solid #0099ff;
+}
+
+
+.Add{
+  background-color: #0099ff;
+  border: none;
+  color: rgb(252, 252, 252);
+  padding: 3px 10px;
+  margin-left: 10px;
+  border-color: aqua;
+  /*glow from border*/
+  border-style: inset;
+  border-bottom-left-radius: 0%;
+  font-size: 20px;
 }
