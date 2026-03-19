@@ -23,12 +23,9 @@ function App() {
         <button className="Hide" onClick={toggleSidebar}>
           ☰
         </button>
-        <h2>
-          <i>
+          <h3><i>
             <CurrentDateDisplay />
-          </i>
-        </h2>
-        <h1>Hey! Riya</h1>
+          </i></h3>
       </div>
       </div>
       <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
@@ -38,14 +35,21 @@ function App() {
           </h2>
         </div>
         <ul className="sidebar-links">
-          <li><Link to="/Home">Home</Link></li>
-          <li><Link to="/Diary">Dear Diary</Link></li>
-          <li><Link to="/TrackProgress">Track Progress</Link></li>
-          <li><Link to="/CreateNew">Create New Goals</Link></li>
-          <li><Link to="/Productivity">Productivity</Link></li>
-          <li><Link to="/Reminders">Reminders</Link></li>
-          <li><Link to="/">Calendar</Link></li>
+          <li><Link to="/Home">🏠 Home</Link></li>
+          <li><Link to="/Diary">📖 Dear Diary</Link></li>
+          <li><Link to="/TrackProgress">📈 Track Progress</Link></li>
+          <li><Link to="/CreateNew">🎯 Create New Goals</Link></li>
+          <li><Link to="/Productivity">⚡ Productivity</Link></li>
+          <li><Link to="/Reminders">⏰ Reminders</Link></li>
+          <li><Link to="/">📅 Calendar</Link></li>
         </ul>
+      </div>
+      <div className="Chatbot">
+        <div className="chatbot-header">
+          <h2><center>Diary's Name</center></h2>
+          <button id = "mic" ><img src = "./src/images/mic.jpg" alt="Microphone"></img></button>
+          <input type = "text" id = "Chat"></input>
+        </div>
       </div>
       <div className = {`router-container ${isSidebarOpen ? "shifted" : ""}`}>
           <Routes>

@@ -5,20 +5,9 @@ import { CurrentDateDisplay, Greetings } from "../Greetings";
 function Diary() {
   return(
     <>
-    <div className="header">
-        <h2>
-          <i>
-            <CurrentDateDisplay />
-          </i>
-        </h2>
-        <h1>Hey! Riya</h1>
-      </div>
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h2>
-            <Greetings /> !!
-          </h2>
-        </div>
+      <div className="diary-container">
+        <h3>Dear Diary,</h3>
+        <textarea  className="diary-input"/>
       </div>
     </>
   )

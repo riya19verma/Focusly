@@ -5,6 +5,7 @@
   padding: 2rem;
   text-align: left;
   overflow-x: hidden;
+  background-color: #f5dabb;
 }
 /* src/components/Sidebar.css */
 .sidebar {
@@ -12,11 +13,10 @@
   width: 300px; /* Set the width of the sidebar */
   top: 0;
   left: 0;
-  background-color: #111; /* Black background */
   padding-top: 20px;
-  color: white;
   transform: translateX(-100%);
   transition: transform 0.3s ease;
+  background-color: #8C5A3C;
 }
 
 .sidebar-header h2 {
@@ -29,26 +29,29 @@
   padding: 0;
 }
 
-.sidebar-links li a {
-  padding: 10px 15px;
-  text-decoration: none; /* Remove underline */
-  color: #818181;
-  display: block; /* Make the links appear as blocks */
-  transition: 0.3s;
+.sidebar.open .sidebar-links li a {
+  display: block;
+  padding: 12px 15px;
+  color: #f8e4ce;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-.sidebar-links li a:hover {
-  color: #f1f1f1;
-  background-color: #575757;
+.sidebar.open .sidebar-links li a:hover {
+  background-color: #C08552;
+  color: rgb(0, 0, 0);
 }
 
 .sidebar.open {
+  background-color: #5c361f; 
+  color: #f5dabb;
   width: 300px;
   transform: translateX(0);
 }
 
 .sidebar.closed {
   transform: translateX(-100%);
+  background-color: #C08552; 
 }
 
 .main-content {
@@ -60,7 +63,8 @@
 .header{
   width: 300px;
   text-align: left;
-  height: 200px;
+  height: 120px;
+  color:  #4B2E2B;
   margin-left: 0px;
   transition: margin-left 0.3s ease;
 }
@@ -73,13 +77,16 @@
   text-align: left;
   margin-left: 0px;
   transition: margin-left 0.3s ease;
+  color : #4B2E2B;
 }
 .router-container.shifted {
   margin-left: 300px; /* Shift the content to the right when sidebar is open */
+  width : 60%;
+  color : #4B2E2B;
 }
 
 .Hide{
-  background-color: #52065581;
+  background-color: #f00064;
   border: none;
   color: white;
   padding: 10px 15px;
@@ -89,4 +96,51 @@
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
+}
+
+.Chatbot {
+  height: 100vh; /* Full-height navigation */
+  width: 320px; /* Set the width of the sidebar */
+  top: 0;
+  right : 0;
+  /* place it to the right end */
+  position: fixed; /* Fixed position */
+  background-color: #8C5A3C; /* Black background */
+  padding-top: 20px;
+  color: white;
+}
+
+.Chatbot #Chat {
+  width: 70%;
+  bottom: 40px;
+  position: absolute;
+  background-color: #4B2E2B;
+  height: 25px;
+  color : rgb(250, 244, 234);
+  border-radius: 20px;
+  padding: 10px;
+  font-size: 16px;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  margin : 10px 0 0 60px;
+}
+
+.Chatbot #mic{
+  width: 40px;
+  height: 40px;
+  bottom: 40px;
+  position: absolute;
+  border-radius: 50%;
+  background: black;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 5px 0 0 10px;
+}
+
+.Chatbot #mic img{
+  width : 30px;
 }

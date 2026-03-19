@@ -5,21 +5,7 @@ import { CurrentDateDisplay, Greetings } from "../Greetings";
 function Reminders() {
   return(
     <>
-    <div className="header">
-        <h2>
-          <i>
-            <CurrentDateDisplay />
-          </i>
-        </h2>
-        <h1>Hey! Riya</h1>
-      </div>
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h2>
-            <Greetings /> !!
-          </h2>
-        </div>
-      </div>
+    
     </>
   )
 }

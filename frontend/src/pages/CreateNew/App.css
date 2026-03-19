@@ -4,48 +4,18 @@
   text-align: left;
 }
 /* src/components/Sidebar.css */
-.sidebar {
-  height: 100%; /* Full-height navigation */
-  width: 300px; /* Set the width of the sidebar */
-  position: fixed; /* Fixed position */
-  top: 0;
-  left: 0;
-  background-color: #111; /* Black background */
-  padding-top: 20px;
-  color: white;
-}
-
-.sidebar-header h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.sidebar-links {
-  list-style-type: none; /* Remove bullet points */
-  padding: 0;
-}
-
-.sidebar-links li a {
-  padding: 10px 15px;
-  text-decoration: none; /* Remove underline */
-  color: #818181;
-  display: block; /* Make the links appear as blocks */
-  transition: 0.3s;
-}
-
-.sidebar-links li a:hover {
-  color: #f1f1f1;
-  background-color: #575757;
-}
 
 .add-root-button-container {
   margin-top: 20px;
   width : 70%;
 }
 
+.create-new-container {
+  color: rgb(18, 84, 160);
+}
+
 .Level1{
   width: 100%;
-  padding: 10px;
   padding-bottom: 0px;
   margin-top: 20px;
   font-size: 16px;
@@ -79,9 +49,9 @@ input {
   width: 80%;
   margin-left: 40px;
   border : none;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #3bb8df;
   background-color: transparent;
-  color : white;
+  color : rgb(84, 0, 163);
   border-radius: 4px;
   font-size: 16px;
   outline: none;
@@ -89,6 +59,7 @@ input {
 
 input:focus{
   border-bottom: 2px solid #0099ff;
+  color : rgb(84, 0, 163);
 }
 
 
