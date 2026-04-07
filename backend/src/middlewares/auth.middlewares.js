@@ -8,9 +8,10 @@ dotenv.config();
 const verifyToken = asyncHandler(async (req, res, next) => {
   const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
   if(!token) {
-    throw ApiError(401, "Unauthorized Request");
+    throw new ApiError(401, "Unauthorized Request");
   }
   let client;
+  console.log("Verifying token");
   try {
     client = await pool.connect();
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -18,10 +19,12 @@ const verifyToken = asyncHandler(async (req, res, next) => {
         "SELECT UID, username, email FROM users WHERE UID = $1",
         [decoded?.id]
     );
+    console.log("User found:", result.rows[0]);
     if(!result || result.rows.length === 0) {
         throw new ApiError(401, "Unauthorized Request");
     }
     req.user = result.rows[0];
+    req.token = token;
     next();
   } catch (err) {
     return res.status(401).json(new ApiResponse(401, null, "Invalid token"));

@@ -4,6 +4,7 @@ import {router} from "./routes/user.route.js";
 import chatbotRoute from "./routes/chatbot.route.js";
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import reminderRoute from './routes/reminders.route.js';
 
 const app = express();
 
@@ -28,6 +29,10 @@ app.use("/api/User", router);
 
 app.use("/api/chatbot", chatbotRoute);
 //https://localhost:3000/api/chatbot/chat
+
+app.use("/api/Reminders", reminderRoute);
+//https://localhost:3000/api/Reminders
+
 console.log("Server is starting...");
 
 const PORT = process.env.PORT || 3000;

@@ -43,7 +43,7 @@
 }
 
 .sidebar.open {
-  background-color: #5c361f; 
+  background-color: #7a4b2e; 
   color: #f5dabb;
   width: 300px;
   transform: translateX(0);
@@ -143,4 +143,58 @@
 
 .Chatbot #mic img{
   width : 30px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Space between the button and profile */
+}
+
+#profile {
+  height: 40px;
+  width: 40px;
+  bottom: 30px;
+  border-radius: 50%;
+  background: black;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+#profile img{
+  width : 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.login-overlay {
+  position: fixed;
+  top: 0;
+  width: 400px;
+  height: 50%;
+  border-radius: 20%;
+  background: rgb(77, 33, 7);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  margin-left: 300px;
+  margin-top: 100px;
+  text-align: center;
+}
+
+#close{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
 }

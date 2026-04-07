@@ -4,42 +4,72 @@
   padding: 2rem;
   text-align: left;
 }
-/* src/components/Sidebar.css */
-.sidebar {
-  height: 100%; /* Full-height navigation */
-  width: 300px; /* Set the width of the sidebar */
-  position: fixed; /* Fixed position */
-  top: 0;
-  left: 0;
-  background-color: #111; /* Black background */
-  padding-top: 20px;
+
+.reminder-overlay {
+  position: fixed;
+  bottom: 10px;
+  align-items: center;
+  width: 400px;
+  height: 300px;
+  border-radius: 10%;
+  border: 2px solid rgb(223, 102, 32);
+  background: rgb(77, 33, 7);
   color: white;
-}
-
-.sidebar-header h2 {
+  display: flex;
+  justify-content: center;
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.sidebar-links {
-  list-style-type: none; /* Remove bullet points */
+.reminder-overlay form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: white;
+  width: 300px;
+  align-items: center;
+}
+
+.reminder-overlay input {
+  background: transparent;
+  border: 1px solid rgb(223, 102, 32);
+  border-radius: 5px;
+  padding: 5px;
+  margin-left: 0px;
+  color: rgb(236, 221, 172);
+  width: 100%;
+}
+
+
+.viewReminders {
+  flex-direction: column;
+  gap: 10px;
+  width: 70%;
+  background-color: none;
+  text-align: left;
+  align-items: left;
+}
+
+.viewReminders ul {
+  list-style-type: none;
   padding: 0;
 }
 
-.sidebar-links li a {
-  padding: 10px 15px;
-  text-decoration: none; /* Remove underline */
-  color: #818181;
-  display: block; /* Make the links appear as blocks */
-  transition: 0.3s;
+.viewReminders li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  background-color: rgb(77, 33, 7);
+  color: white;
+  border-radius: 5px;
+  padding: 0px;
+  margin: 10px;
 }
-
-.sidebar-links li a:hover {
-  color: #f1f1f1;
-  background-color: #575757;
-}
-
-.streak h2 {
-  width: 100vh;
-  text-align: left;
+.viewReminders label [type="checkbox"] {
+  height: 20px;
+  width: 20px;
+  padding: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
+  vertical-align: middle;
 }
