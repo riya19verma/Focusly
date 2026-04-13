@@ -134,7 +134,12 @@ const loginUser = asyncHandler(async (req, res) => {
         .status(200)
         .cookie("accessToken", accessToken, cookieOptions)
         .cookie("refreshToken", refreshToken, cookieOptions)
-        .json(new ApiResponse(200, null, "Login successful"));
+        .json(new ApiResponse(200, {
+            token: accessToken,
+            username: result.rows[0].username,
+            email: result.rows[0].email,
+            uid: result.rows[0].uid
+        }, "Login successful"));
 
 } finally {
     if(client) {
@@ -231,9 +236,44 @@ const refreshAcesssToken = asyncHandler(async (req, res) => {
     }
 })
 
+const findUser = asyncHandler(async (req, res) => {
+    console.log("Finding user with ID:", req.user.uid);
+    let client;
+    try {
+        client = await pool.connect();
+        const query = `
+            SELECT UID, username, email
+            FROM users
+            WHERE UID = $1;
+        `
+        const result = await client.query(query, [req.user.uid]);
+        console.log("User query result:", result.rows);
+        if(result.rows.length === 0) {
+            throw new ApiError(404, "User not found");
+        }
+        return res.json(
+            {
+                username: result.rows[0].username,
+                email: result.rows[0].email,
+                uid: result.rows[0].uid
+            }
+        );
+    } finally {
+        if(client) {
+            client.release();
+        } 
+    }
+});
+
 const getCurrentUser = asyncHandler(async(req,res)=>{
     return res.status(200)
-    .json(200, req.user, "Current user fetched successfully")
+    .json(
+        new ApiResponse(
+            200,
+            req.user,
+            "Current user fetched successfully"
+        )
+    )
 })
 
 export {
@@ -241,7 +281,8 @@ export {
     loginUser,
     logoutUser,
     refreshAcesssToken,
-    getCurrentUser
+    getCurrentUser,
+    findUser
 };
 
 

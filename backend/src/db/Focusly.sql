@@ -1,3 +1,4 @@
+
 create table Tasks(
 	TID int primary key GENERATED ALWAYS AS IDENTITY,
 	def varchar(100),
@@ -81,6 +82,17 @@ create table reminders(
 	created_at timetz
 );
 
+select* from reminders;
+ALTER TABLE reminders
+ALTER COLUMN created_at
+TYPE TIMESTAMP
+USING CURRENT_DATE + created_at;
+ALTER TABLE reminders
+ALTER COLUMN completed set default false;
+delete from reminders;
+
+ALTER TABLE reminders
+
 create table sync_changes(
 	sid int primary key GENERATED ALWAYS AS IDENTITY,
 	uid int,
@@ -99,6 +111,16 @@ create table checkbox(
 	obj_id int,
 	stamp timestamptz
 );
+
+CREATE TABLE diaryEntry(
+	eid INTEGER primary key GENERATED ALWAYS AS IDENTITY,
+	uid INTEGER,
+	created_on date,
+	entry text
+)
+
+select* from diaryEntry;
+
 
 CREATE TABLE user_qualities (
     uid INTEGER NOT NULL,

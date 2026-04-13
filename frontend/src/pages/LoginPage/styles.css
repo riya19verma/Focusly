@@ -8,24 +8,19 @@ body {
   background: #f4f6f8;
 }
 
-.page {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .login-card {
   background: white;
   padding: 2.5rem;
   width: 360px;
   border-radius: 10px;
+  margin-left: 25%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-.login-card h1 {
+.login-card h2 {
   text-align: center;
   margin-bottom: 0.3rem;
+  color: #4B2E2B;
 }
 
 .subtitle {

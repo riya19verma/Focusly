@@ -1,80 +1,35 @@
 import "./App.css";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Diary from "./pages/Diary/App.tsx";
 import Home from "./pages/Home/App.tsx";
 import Progress from "./pages/Progress/App.tsx";
 import CreateNew from "./pages/CreateNew/App.tsx";
 import Productivity from "./pages/Productivity/App.tsx";
 import Reminders from "./pages/Reminders/App.tsx";
+import Login from "./pages/LoginPage/App.tsx"
 import { Link, Route,Routes } from "react-router-dom"; 
 import { CurrentDateDisplay, Greetings } from "./pages/Greetings";
 import axios from "axios";
 
-type LoginModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-};
-
-function LoginUser({ isOpen, onClose }: LoginModalProps) {
-  const [username, setUsername] = useState("User");
-  const [password, setPassword] = useState("");
-
-  if(!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    axios.post(
-        "/api/User/login", 
-        { username, password },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      .then(response => {
-        const token = response.data.token;
-        // Handle successful login, e.g., store token, redirect, etc.
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        onClose();
-      })
-      .catch((error) => {
-        // Handle login error, e.g., show error message
-        console.error("Login failed:", error);
-      });
-  };
-
-  return (
-    <div className="login-overlay">
-      <div className="login-form">
-        <button onClick={onClose}>X</button>
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit">Login</button>
-        </form>
-      </div>
-    </div>
-  );
-}
 
 function App() {
-
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [user, setUser] = useState("Guest");
+  
+  useEffect(()=>{
+    axios.get(
+      "/api/User/whoami"
+    ).then(
+      response => {
+        console.log("USER RESPONSE:", response.data);
+        setUser(response.data.username);
+      }
+    ).
+    catch(error => {
+      console.log("USER ERROR:", error.response || error);
+      setUser("Guest");
+    });
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -88,13 +43,10 @@ function App() {
         <button className="Hide" onClick={toggleSidebar}>
           ☰
         </button>
-        <button id = "profile" onClick={() => setOpen(true)}>
+        <Link to = "/Login" id="profile">
           <img src = "./src/images/profile.jpg" alt="Profile"></img>
-        </button>
-        <LoginUser
-          isOpen = {open}
-          onClose = {() => setOpen(false)}
-        />
+        </Link>
+        {user}
         </div>
           <h3><i>
             <CurrentDateDisplay />
@@ -126,6 +78,7 @@ function App() {
       </div>
       <div className = {`router-container ${isSidebarOpen ? "shifted" : ""}`}>
           <Routes>
+            <Route path = "/Login" element = {<Login />}/>
             <Route path="/Home" element={<Home />} />
             <Route path="/Diary" element={<Diary />} />
             <Route path="/TrackProgress" element={<Progress />} />
@@ -133,7 +86,7 @@ function App() {
             <Route path="/Productivity" element={<Productivity />} />
             <Route path="/Reminders" element={<Reminders />} />
           </Routes>
-      </div>
+      </div>      
     </>
   );
 }

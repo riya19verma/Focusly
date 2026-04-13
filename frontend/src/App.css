@@ -1,8 +1,14 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  font-family: 'Arial', sans-serif;
+  width: 100vw;
+}
 #root {
-  max-width: 1280px;
+  width: 1280px;
   height: 100vh;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 0px;
+  padding: 0px;
   text-align: left;
   overflow-x: hidden;
   background-color: #f5dabb;
@@ -96,6 +102,7 @@
   font-size: 16px;
   margin: 4px 2px;
   cursor: pointer;
+  width: 50px;
 }
 
 .Chatbot {
@@ -105,7 +112,7 @@
   right : 0;
   /* place it to the right end */
   position: fixed; /* Fixed position */
-  background-color: #8C5A3C; /* Black background */
+  background-color: #8c5b3c; /* Black background */
   padding-top: 20px;
   color: white;
 }
@@ -173,28 +180,39 @@
 
 .login-overlay {
   position: fixed;
-  top: 0;
+  vertical-align: middle;
+  top: 100px;
   width: 400px;
   height: 50%;
   border-radius: 20%;
-  background: rgb(77, 33, 7);
-  color: white;
+  border: #4B2E2B solid 2px;
+  background: beige;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  margin-left: 300px;
-  margin-top: 100px;
   text-align: center;
+}
+.login-overlay h2 {
+  margin-bottom: 20px;
+}
+.login-overlay input {
+  width: 80%;
+  margin-bottom: 20px;
+  margin-left: 0px;
 }
 
 #close{
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background: transparent;
+  top: 30px;
+  right: 50px;
   border: none;
   color: white;
   font-size: 16px;
   cursor: pointer;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  padding: 0px 5px 5px 5px;
+  background-color: #441b00d7;
 }

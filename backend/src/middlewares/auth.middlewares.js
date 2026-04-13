@@ -36,4 +36,7 @@ const verifyToken = asyncHandler(async (req, res, next) => {
   }
 });
 
-export {verifyToken};
+
+export {
+  verifyToken
+};

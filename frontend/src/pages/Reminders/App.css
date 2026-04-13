@@ -1,6 +1,6 @@
 #root {
   max-width: 1280px;
-  margin: 0 auto;
+  margin: 0px;
   padding: 2rem;
   text-align: left;
 }
@@ -64,6 +64,7 @@
   border-radius: 5px;
   padding: 0px;
   margin: 10px;
+  width: 100%;
 }
 .viewReminders label [type="checkbox"] {
   height: 20px;
@@ -72,4 +73,14 @@
   margin-left: 10px;
   margin-right: 10px;
   vertical-align: middle;
+}
+
+.add-reminder {
+  color: white;
+  width: 200px;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-top: 20px;
 }

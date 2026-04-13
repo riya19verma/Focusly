@@ -1,5 +1,5 @@
 import express from "express";
-import {registerUser, loginUser, logoutUser, refreshAcesssToken} from "../controllers/login.controllers.js";
+import {registerUser, loginUser, logoutUser, findUser,refreshAcesssToken} from "../controllers/login.controllers.js";
 import {verifyToken} from "../middlewares/auth.middlewares.js";
 const router = express.Router();
 
@@ -10,4 +10,8 @@ router.route("/logout").post(
     logoutUser
 );
 router.route("/refreshToken").post(refreshAcesssToken)
+router.route("/whoami").get(
+    verifyToken, 
+    findUser
+);
 export {router};

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
-import { List } from "@mui/icons-material";
 
 type ReminderModalProps = {
   isOpen: boolean;
