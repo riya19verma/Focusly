@@ -3,11 +3,6 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-body {
-  margin: 0;
-  background: #f4f6f8;
-}
-
 .login-card {
   background: white;
   padding: 2.5rem;
@@ -81,4 +76,9 @@ button:hover {
   color: #4f46e5;
   text-decoration: none;
   font-weight: 500;
+}
+
+.create-account-container {
+  margin-top: 2rem;
+  width: 0px;
 }

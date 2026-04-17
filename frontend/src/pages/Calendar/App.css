@@ -1,0 +1,39 @@
+
+.calendar-container {
+  flex-direction: column;
+  gap: 2rem;
+  width: 693px;
+  left: 0px;
+  margin-top: 0px;
+}
+
+.calendar-table td{
+  width: 99px;
+  height: 70px;
+  border-radius: 20%;
+  border: 1px dashed ;
+  padding: 5px;
+  vertical-align: top;
+}
+
+.calendar-table thead{
+  text-align: center;
+}
+
+.connect-google-btn {
+  width: 693px;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.month-year {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px;
+  vertical-align: middle;
+  border-bottom: 1px dashed;
+}

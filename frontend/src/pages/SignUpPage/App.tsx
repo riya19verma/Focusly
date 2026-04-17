@@ -1,10 +1,15 @@
 import "./styles.css";
+import { useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
-export default function App() {
+function CreateAccount() {
+
   return (
+    <>
     <div className="page">
-      <div className="login-card">
-        <h1>Hey There !!</h1>
+      <div className="signUp-card">
+        <h2>Hey There !!</h2>
         <p className="subtitle">
           It seems you are new here. Let's get to know you.
         </p>
@@ -33,5 +38,8 @@ export default function App() {
         </form>
       </div>
     </div>
+    </>
   );
 }
+
+export default CreateAccount;

@@ -138,7 +138,8 @@ const loginUser = asyncHandler(async (req, res) => {
             token: accessToken,
             username: result.rows[0].username,
             email: result.rows[0].email,
-            uid: result.rows[0].uid
+            uid: result.rows[0].uid,
+            uname: result.rows[0].uname
         }, "Login successful"));
 
 } finally {
@@ -242,7 +243,7 @@ const findUser = asyncHandler(async (req, res) => {
     try {
         client = await pool.connect();
         const query = `
-            SELECT UID, username, email
+            SELECT UID, username, email, uname
             FROM users
             WHERE UID = $1;
         `
@@ -255,7 +256,8 @@ const findUser = asyncHandler(async (req, res) => {
             {
                 username: result.rows[0].username,
                 email: result.rows[0].email,
-                uid: result.rows[0].uid
+                uid: result.rows[0].uid,
+                uname : result.rows[0].uname
             }
         );
     } finally {

@@ -2,6 +2,8 @@ import "./styles.css";
 import { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import {Routes, Route} from "react-router-dom";
+import CreateAccount from "../SignUpPage/App.tsx"; 
 
 function Login() {
     const [username, setUsername] = useState("User");
@@ -57,7 +59,8 @@ function Login() {
         </form>
 
         <p className="footer-text">
-          Are new in here? <Link to="/CreateAccount">Create an account</Link>
+          Are new in here? 
+          <Link to="/CreateAccount">Create an account</Link>
         </p>
       </div>
   </>

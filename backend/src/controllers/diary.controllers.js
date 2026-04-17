@@ -1,10 +1,7 @@
 import {asyncHandler} from '../utils/asyncHandler.js';
 import pool from '../db/db.js';
 import {ApiError} from '../utils/ApiError.js';
-import bcrypt from 'bcrypt';
 import {ApiResponse} from '../utils/ApiResponse.js';
-import jwt from 'jsonwebtoken';
-import {GenerateAccessToken, GenerateRefreshToken} from '../db/tokenGeneration.db.js';
 
 const getDiaryEntry = asyncHandler(async (req, res) => {
     const userID = req.user.uid;

@@ -6,7 +6,10 @@ import Progress from "./pages/Progress/App.tsx";
 import CreateNew from "./pages/CreateNew/App.tsx";
 import Productivity from "./pages/Productivity/App.tsx";
 import Reminders from "./pages/Reminders/App.tsx";
-import Login from "./pages/LoginPage/App.tsx"
+import Login from "./pages/LoginPage/App.tsx";
+import CreateAccount from "./pages/SignUpPage/App.tsx";
+import Calendar from "./pages/Calendar/App.tsx";
+//import Questionnaire from "./pages/Questionnaire/App.tsx";
 import { Link, Route,Routes } from "react-router-dom"; 
 import { CurrentDateDisplay, Greetings } from "./pages/Greetings";
 import axios from "axios";
@@ -66,7 +69,7 @@ function App() {
           <li><Link to="/CreateNew">🎯 Create New Goals</Link></li>
           <li><Link to="/Productivity">⚡ Productivity</Link></li>
           <li><Link to="/Reminders">⏰ Reminders</Link></li>
-          <li><Link to="/">📅 Calendar</Link></li>
+          <li><Link to="/Calendar">📅 Calendar</Link></li>
         </ul>
       </div>
       <div className="Chatbot">
@@ -85,6 +88,9 @@ function App() {
             <Route path="/CreateNew" element={<CreateNew />} />
             <Route path="/Productivity" element={<Productivity />} />
             <Route path="/Reminders" element={<Reminders />} />
+            <Route path="/CreateAccount" element={<CreateAccount />} />
+            <Route path="/Calendar" element={<Calendar />} />
+            {/* <Route path= "/Questionnaire" element={<Questionnaire />} /> */}
           </Routes>
       </div>      
     </>

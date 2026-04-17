@@ -1,4 +1,3 @@
-
 create table Tasks(
 	TID int primary key GENERATED ALWAYS AS IDENTITY,
 	def varchar(100),

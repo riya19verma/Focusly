@@ -1,10 +1,7 @@
 import "./App.css";
-import { Link, Route } from "react-router-dom"; // Optional: if using React Router
-import {use, useState } from "react";
+import {useState } from "react";
 import { Save } from "@mui/icons-material";
 import axios from "axios";
-
-
 
 function Diary() {
   const [date, setDate] = useState(""); 

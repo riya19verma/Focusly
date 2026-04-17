@@ -3,9 +3,11 @@ import newGoalsRoute from "./routes/newGoals.route.js";
 import {router} from "./routes/user.route.js"; 
 import chatbotRoute from "./routes/chatbot.route.js";
 import diaryRoute from "./routes/diary.route.js";
+import trackProgressRoute from "./routes/trackProgress.route.js";
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import reminderRoute from './routes/reminders.route.js';
+import calendarRoute from './routes/calendar.route.js';
 
 const app = express();
 
@@ -36,6 +38,13 @@ app.use("/api/Reminders", reminderRoute);
 
 app.use("/api/Diary", diaryRoute);
 //https://localhost:3000/api/Diary
+
+app.use("/api/TrackProgress", trackProgressRoute);
+//https://localhost:3000/api/TrackProgress/progress
+
+app.use("/api/calendar", calendarRoute);
+//https://localhost:3000/api/calendar/authGoogle
+
 console.log("Server is starting...");
 
 const PORT = process.env.PORT || 3000;
