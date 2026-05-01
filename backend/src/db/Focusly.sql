@@ -46,6 +46,11 @@ ALTER TABLE dependent
 ADD column time_unit varchar(6);
 select* from dependent;
 
+SELECT COLUMN_NAME 
+FROM INFORMATION_SCHEMA.COLUMNS 
+WHERE TABLE_NAME = 'dependent';
+
+
 create table users(
 	UID int primary key GENERATED ALWAYS AS IDENTITY,
 	uname varchar(50),
@@ -58,6 +63,12 @@ ALTER TABLE users
 ADD COLUMN work_capacity_in_hrs int;
 ALTER TABLE users
 ADD COLUMN days_available_per_week ENUM;
+ALTER TABLE users
+RENAME COLUMN google_calendar_token to google_refresh_token;
+ALTER TABLE users
+ADD COLUMN google_access_token TEXT;
+ALTER TABLE users ADD COLUMN token_expiry TIMESTAMP;
+ALTER TABLE users ADD COLUMN google_connected BOOLEAN DEFAULT false;
 
 select* from users;
 
@@ -101,7 +112,25 @@ create table sync_changes(
 	ver int, /*version - updated monotonically for each user seperately*/
 	created_at timetz
 );
+-----------------------------------
+CREATE OR REPLACE FUNCTION update_version()
+RETURNS TRIGGER AS 
+$$
+BEGIN
+  NEW.ver = OLD.ver+1;
+  RETURN NEW;
+END;
+$$ 
+LANGUAGE plpgsql;
 
+CREATE TRIGGER set_version
+BEFORE UPDATE ON sync_changes
+FOR EACH ROW
+EXECUTE FUNCTION update_version();
+
+ALTER TABLE sync_changes
+ALTER COLUMN ver SET DEFAULT 1;
+------------------------------------------
 select*from sync_changes;
 
 create table checkbox(
@@ -136,6 +165,24 @@ CREATE TABLE user_qualities (
 );
 ALTER TABLE user_qualities
 ADD COLUMN updated_at TIMESTAMPTZ DEFAULT NOW();
+
+
+drop table google_events;
+CREATE TABLE google_events (
+  g_eid SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(uid),
+  google_event_id TEXT UNIQUE,
+  title TEXT,
+  description TEXT,
+  start_time TIMESTAMP,
+  end_time TIMESTAMP,
+  updated_at TIMESTAMP
+);
+
+select* from google_events;
+delete from google_events;
+
+
 
 CREATE TRIGGER set_timestamp
 BEFORE UPDATE ON user_qualities

@@ -55,7 +55,7 @@ async function createNewGoalsFunc(client, PID, tasks, UID) {
     const currentDate = new Date().toISOString().split('T')[0];
     console.log("1")
     console.log("Current User ID:", UID);
-    const {
+    let {
         description = null, 
         due_date = currentDate, 
         is_recurring = false, 
@@ -67,21 +67,24 @@ async function createNewGoalsFunc(client, PID, tasks, UID) {
         sub_goals=null
     } = tasks;
     if(!description || !due_date || !time_alloted || !time_unit) {
+        console.log("Missing required fields:", {description, due_date, time_alloted, time_unit});
         throw new ApiError(400, "Description, due date, time alloted and time unit are required fields");
     }
     if(!start_date) start_date = currentDate;
     if(!due_date) due_date = currentDate;
     console.log("Received task data:", tasks);
-    const recurring = is_recurring ==="true"? true : false;
+    const recurring = is_recurring === true? true : false;
     const recur_rate = recurring ? parseInt(r_rate) : null;
     
     const dueDate = new Date(due_date);
     if(dueDate < currentDate) {
+        console.log("Due date is in the past:", dueDate);
         throw new ApiError(400, "Due date must be greater than or equal to current date");
     }
 
-    const {category, effort_level, energy_type} = await classifyTask(description);
-    console.log(category, effort_level, energy_type);
+    const taskType = await classifyTask(description);
+    console.log(taskType);
+    const {category, effort_level, energy_type} = taskType;
 
     let tid;
     const insertQuery = "INSERT INTO tasks (def, cat_type,effort_level, energy_type , UID) VALUES ($1, $2, $3, $4, $5) returning TID";
@@ -241,22 +244,11 @@ const parseAIresponse = (client, PID, tasks, UID, AIres) => {
     }
 }
 
-const createNew = (help, AIres) => asyncHandler(async (req, res) => {
+const createNew = (help = null, AIres = null) => asyncHandler(async (req, res) => {
     const UID = req.user.uid;
     console.log("User UID:", UID);
     const client = await pool.connect();
     if(help) {
-        const tasks = {
-            description : req.body.description, 
-            due_date : req.body.due_date, 
-            is_recurring : false, 
-            time_alloted : null, 
-            time_unit : null, 
-            start_date : req.body.start_date, 
-            r_rate:null,
-            recur_unit : null,
-            sub_goals : null
-        }
         const tid = createNewGoalsFunc(client, null, tasks, UID)
         parseAIresponse(client, tid, tasks, UID, AIres);
         res.status(200).json(
@@ -269,7 +261,7 @@ const createNew = (help, AIres) => asyncHandler(async (req, res) => {
         const tid = await createNewGoalsFunc(
             client,
             null, 
-            req.body, 
+            req.body.goal[0],
             UID
         );
         await client.query("COMMIT");

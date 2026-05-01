@@ -34,25 +34,23 @@ const classifyTask = async (description) => {
     Task:
     "${description}"
   `;
-  console.log("Classification prompt:", prompt);
+  let parsed;
   try{
       console.log("Calling AI for classification...");
       const raw = await callAIforClassification(prompt);
-      console.log("Raw AI response for classification:", raw);
       // Clean possible markdown formatting
       const cleaned = raw.replace(/```json|```/g, "").trim();
       console.log("Cleaned AI response for classification:", cleaned);
-      const parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(cleaned);
   }catch(error) {
       console.error("AI quota exceeded. Using fallback classification.");
-      const parsed = {
+      parsed = {
           category: "General",
           effort_level: "Medium",
           energy_type: "Neutral"
       };
-
+    }
     return parsed;   // return full object
-  }
 };
 
 export { classifyTask };
