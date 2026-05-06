@@ -95,9 +95,9 @@ async function createNewGoalsFunc(client, PID, tasks, UID) {
     tid = task.rows[0].tid;
     if(recurring){
         const startDateObj = new Date(start_date);
-        const next_recur_date = startDateObj == currentDate ? startDateObj : getNextRecurDate(start_date, recur_rate, recur_unit);
+        const next_recur_date = startDateObj > currentDate ? startDateObj : await getNextRecurDate(start_date, recur_rate, recur_unit);
         // //recurring task table entry
-        const insertQuery = 
+        let insertQuery = 
         `INSERT INTO recurring 
         (tid, pid, start_date, next_recur_date, recur_unit, recur_rate, end_date, completion_rate, miss_rate,time_alloted, time_unit) 
         VALUES 

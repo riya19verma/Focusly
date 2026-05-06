@@ -8,6 +8,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import reminderRoute from './routes/reminders.route.js';
 import calendarRoute from './routes/calendar.route.js';
+import dailyRoute from './routes/dailyTasks.routes.js';
 
 const app = express();
 
@@ -44,6 +45,9 @@ app.use("/api/TrackProgress", trackProgressRoute);
 
 app.use("/api/calendar", calendarRoute);
 //https://localhost:3000/api/calendar/authGoogle
+
+app.use("/api/daily", dailyRoute);
+//https://localhost:3000/api/daily/today
 
 console.log("Server is starting...");
 

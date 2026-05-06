@@ -138,6 +138,7 @@ async function helpAI(UID, taskDescription, category, effort_level, energy_type,
 const chatbotController = (context = null) => asyncHandler(async (req, res) => {
     console.log("Chatbot controller invoked with context:", context);
     const options = req.body.options || "none";
+    console.log("Options received:", options);
     const UID = req.user.uid;
     console.log("User UID:", UID);
     if(options === "createNew") {
@@ -213,22 +214,57 @@ const chatbotController = (context = null) => asyncHandler(async (req, res) => {
     else if(options === "conversation") {
         //normal conversational message, call appropriate function in ai.services.js and return response
         const user_mssg = req.body.message;
-        let conversation = [];
-        try {
-            conversation = JSON.parse(req.body.context || "[]");
-        } catch(e) {
-            conversation = []; // fallback if malformed
-        }
+        console.log("User message for conversation:", user_mssg);
 
-        const Response = await callAIforChatting(user_mssg, conversation);
-        conversation.push({ role: "user", parts: [{ text: user_mssg }] });
-        conversation.push({ role: "model", parts: [{ text: Response }] }); 
+        let conversation = Array.isArray(req.body.context)
+            ? req.body.context: [];
+
+        const aiReply = await callAIforChatting(user_mssg, conversation);
+
+        const updatedConversation = [
+            ...conversation,
+            { role: "user", content: user_mssg },
+            { role: "assistant", content: aiReply }
+        ];
+
         console.log("Conversation history:", conversation);
-        let message = Response;
+        let message = aiReply;
+        console.log("AI response for conversation:", message);
         return res.status(200).json(
-            new ApiResponse(200, {message, conversation})
+            new ApiResponse(200, {
+                message: aiReply,
+                conversation: updatedConversation
+            })
         );
     }
 });
 
-export { chatbotController };
+const diaryNameRetrieve = asyncHandler(async (req, res) => {
+    const UID = req.user.uid;
+    let client;
+    try {
+        client = await pool.connect();
+        const query = `
+            SELECT diaryName   
+            FROM users
+            WHERE uid = $1
+        `;
+        const result = await client.query(query, [UID]);
+        const diary_name = result.rows[0].diaryname;
+        console.log("Retrieved diary name:", diary_name);
+        return res.status(200).json(
+            new ApiResponse(200, {diary_name})
+        );
+    } catch (error) {
+        throw error;
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+});
+
+export { 
+    chatbotController,
+    diaryNameRetrieve
+ };
